@@ -5,8 +5,8 @@ class DetailThreadUseCase {
     this._threadRepository = threadRepository;
   }
 
-  async execute(useCasePayload) {
-    const detailThread = new DetailThread(useCasePayload);
+  async execute(useCaseParams) {
+    const detailThread = new DetailThread(useCaseParams);
     return this._threadRepository.getDetailThread(detailThread);
   }
 }
