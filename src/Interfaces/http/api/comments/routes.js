@@ -3,24 +3,24 @@ const routes = (handler) => [
   {
     method: 'POST',
     path: '/threads/{threadId}/comments',
-    handler: handler.postUserHandler,
+    handler: handler.postCommentHandler,
   },
-  {
-    method: 'DELETE',
-    path: '/threads/{threadId}/comments/{commentId}',
-    handler: handler.postUserHandler,
-  },
-  // tidak wajib
-  {
-    method: 'POST',
-    path: '/threads/{threadId}/comments/{commentId}/replies',
-    handler: handler.postUserHandler,
-  },
-  {
-    method: 'DELETE',
-    path: '/threads/{threadId}/comments/{commentId}/replies/{replyId}',
-    handler: handler.postUserHandler,
-  },
+  // {
+  //   method: 'DELETE',
+  //   path: '/threads/{threadId}/comments/{commentId}',
+  //   handler: handler.postUserHandler,
+  // },
+  // // tidak wajib
+  // {
+  //   method: 'POST',
+  //   path: '/threads/{threadId}/comments/{commentId}/replies',
+  //   handler: handler.postUserHandler,
+  // },
+  // {
+  //   method: 'DELETE',
+  //   path: '/threads/{threadId}/comments/{commentId}/replies/{replyId}',
+  //   handler: handler.postUserHandler,
+  // },
 ];
 
 module.exports = routes;

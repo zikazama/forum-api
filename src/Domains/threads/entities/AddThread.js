@@ -23,10 +23,6 @@ class AddThread {
     if (title.length > 50) {
       throw new Error('ADD_THREAD.TITLE_LIMIT_CHAR');
     }
-
-    if (!title.match(/^[\w]+$/)) {
-      throw new Error('ADD_THREAD.TITLE_CONTAIN_RESTRICTED_CHARACTER');
-    }
   }
 }
 
