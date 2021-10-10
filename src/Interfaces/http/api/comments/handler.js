@@ -7,13 +7,14 @@ class CommentsHandler {
   }
 
   async postCommentHandler(request, h) {
-    const addThreadUseCase = this._container.getInstance(AddCommentUseCase.name);
-    const addedThread = await addThreadUseCase.execute(request.payload, request.headers);
+    const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
+    // eslint-disable-next-line max-len
+    const addedComment = await addCommentUseCase.execute(request.payload, request.headers, request.params);
 
     const response = h.response({
       status: 'success',
       data: {
-        addedThread,
+        addedComment,
       },
     });
     response.code(201);

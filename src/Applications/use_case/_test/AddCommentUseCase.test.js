@@ -10,13 +10,16 @@ describe('AddCommentUseCase', () => {
   it('should orchestrating the add comment action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      threadId: 'thread-123',
       content: 'isi',
       owner: 'user-123',
     };
 
     const useCaseHeaders = {
       authorization: 'jey',
+    };
+
+    const useCaseParams = {
+      threadId: 'thread-123',
     };
 
     /** creating dependency of use case */
@@ -36,11 +39,12 @@ describe('AddCommentUseCase', () => {
     });
 
     // Action
-    const addedComment = await getCommentUseCase.execute(useCasePayload, useCaseHeaders);
+    // eslint-disable-next-line max-len
+    const addedComment = await getCommentUseCase.execute(useCasePayload, useCaseHeaders, useCaseParams);
 
     // Assert
     expect(mockCommentRepository.addCommentInThread).toBeCalledWith(new AddComment({
-      threadId: useCasePayload.threadId,
+      threadId: useCaseParams.threadId,
       content: useCasePayload.content,
       owner: useCasePayload.owner,
     }));

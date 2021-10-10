@@ -23,6 +23,7 @@ DomainErrorTranslator._directories = {
   'ADD_THREAD.TITLE_LIMIT_CHAR': new InvariantError('tidak dapat membuat thread baru karena karakter judul melebihi batas limit'),
   'ADD_THREAD.TITLE_CONTAIN_RESTRICTED_CHARACTER': new InvariantError('tidak dapat membuat thread baru karena judul mengandung karakter terlarang'),
   'ADD_THREAD.NO_AUTHORIZATION': new AuthenticationError('Missing authentication'),
+  'ADD_COMMENT.NO_AUTHORIZATION': new AuthenticationError('Missing authentication'),
 };
 
 module.exports = DomainErrorTranslator;

@@ -9,7 +9,6 @@ exports.up = (pgm) => {
     threadId: {
       type: 'VARCHAR(50)',
       notNull: true,
-      unique: true,
     },
     content: {
       type: 'TEXT',
