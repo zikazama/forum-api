@@ -29,6 +29,8 @@ DomainErrorTranslator._directories = {
   'ADD_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat comment baru karena tipe data tidak sesuai'),
   'DETAIL_THREAD.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat mengambil thread karena properti yang dibutuhkan tidak ada'),
   'DETAIL_THREAD.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat mengambil thread karena tipe data tidak sesuai'),
+  'DELETE_COMMENT.NO_AUTHORIZATION': new AuthenticationError('Missing authentication'),
+  'DELETE_COMMENT.NO_PARAMS': new InvariantError('parameter tidak ada'),
 };
 
 module.exports = DomainErrorTranslator;

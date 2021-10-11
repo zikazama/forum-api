@@ -5,11 +5,11 @@ const routes = (handler) => [
     path: '/threads/{threadId}/comments',
     handler: handler.postCommentHandler,
   },
-  // {
-  //   method: 'DELETE',
-  //   path: '/threads/{threadId}/comments/{commentId}',
-  //   handler: handler.postUserHandler,
-  // },
+  {
+    method: 'DELETE',
+    path: '/threads/{threadId}/comments/{commentId}',
+    handler: handler.deleteCommentHandler,
+  },
   // // tidak wajib
   // {
   //   method: 'POST',

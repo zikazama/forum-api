@@ -18,6 +18,9 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       notNull: true,
     },
+    is_delete: {
+      type: 'CHAR(1)',
+    },
     createdAt: {
       type: 'timestamp',
       notNull: true,

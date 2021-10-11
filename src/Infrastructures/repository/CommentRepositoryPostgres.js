@@ -1,5 +1,6 @@
 const InvariantError = require('../../Commons/exceptions/InvariantError');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 const CommentRepository = require('../../Domains/comments/CommentRepository');
 
 class CommentRepositoryPostgres extends CommentRepository {
@@ -32,6 +33,32 @@ class CommentRepositoryPostgres extends CommentRepository {
     const result = await this._pool.query(query);
 
     return { ...result.rows[0] };
+  }
+
+  async deleteCommentInThread(deleteComment) {
+    const { threadId, commentId, owner } = deleteComment;
+
+    const checkQuery = {
+      text: 'SELECT * FROM comments WHERE "threadId" = $1 AND id = $2',
+      values: [threadId, commentId],
+    };
+
+    const resultCheck = await this._pool.query(checkQuery);
+
+    if (resultCheck.rowCount === 0) {
+      throw new NotFoundError('komentar tidak ditemukan');
+    }
+
+    if (resultCheck.rows[0].owner !== owner) {
+      throw new AuthorizationError('autorisasi salah');
+    }
+
+    const query = {
+      text: 'UPDATE comments SET is_delete = $4 WHERE "threadId" = $1 AND id = $2 AND owner = $3',
+      values: [threadId, commentId, owner, '1'],
+    };
+
+    await this._pool.query(query);
   }
 }
 

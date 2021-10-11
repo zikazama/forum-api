@@ -1,5 +1,5 @@
 const AddComment = require('../../../Domains/comments/entities/AddComment');
-const CommnetRepository = require('../../../Domains/comments/CommentRepository');
+const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const AuthenticationTokenManager = require('../../security/AuthenticationTokenManager');
 const AddCommentUseCase = require('../AddCommentUseCase');
@@ -24,7 +24,7 @@ describe('AddCommentUseCase', () => {
     };
 
     /** creating dependency of use case */
-    const mockCommentRepository = new CommnetRepository();
+    const mockCommentRepository = new CommentRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     /** mocking needed function */
