@@ -16,7 +16,14 @@ describe('AddThreadUseCase', () => {
     };
 
     const useCaseHeaders = {
-      authorization: 'jey',
+      authorization: 'user-123',
+    };
+
+    const expectedThread = {
+      id: 'thread-123',
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-123',
     };
 
     /** creating dependency of use case */
@@ -25,7 +32,7 @@ describe('AddThreadUseCase', () => {
 
     /** mocking needed function */
     mockThreadRepository.addThread = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+      .mockImplementation(() => Promise.resolve(expectedThread));
     mockAuthenticationTokenManager.decodePayload = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
@@ -39,6 +46,7 @@ describe('AddThreadUseCase', () => {
     const addedThread = await getThreadUseCase.execute(useCasePayload, useCaseHeaders);
 
     // Assert
+    expect(addedThread).toStrictEqual(expectedThread);
     expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
       title: useCasePayload.title,
       body: useCasePayload.body,

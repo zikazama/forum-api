@@ -12,12 +12,19 @@ describe('DetailThreadUseCase', () => {
       threadId: 'thread-123',
     };
 
+    const expectedThread = {
+      id: 'thread-123',
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-123',
+    };
+
     /** creating dependency of use case */
     const mockThreadRepository = new ThreadRepository();
 
     /** mocking needed function */
     mockThreadRepository.getDetailThread = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+      .mockImplementation(() => Promise.resolve(expectedThread));
 
     /** creating use case instance */
     const getDetailThreadUseCase = new DetailThreadUseCase({
@@ -28,6 +35,7 @@ describe('DetailThreadUseCase', () => {
     const detailThread = await getDetailThreadUseCase.execute(useCasePayload);
 
     // Assert
+    expect(detailThread).toStrictEqual(expectedThread);
     expect(mockThreadRepository.getDetailThread).toBeCalledWith(new DetailThread({
       threadId: useCasePayload.threadId,
     }));

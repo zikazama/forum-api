@@ -23,13 +23,20 @@ describe('AddCommentUseCase', () => {
       threadId: 'thread-123',
     };
 
+    const expectedComment = {
+      id: 'comment-123',
+      threadId: useCaseParams.threadId,
+      content: useCasePayload.content,
+      owner: useCasePayload.owner,
+    };
+
     /** creating dependency of use case */
     const mockCommentRepository = new CommentRepository();
     const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     /** mocking needed function */
     mockCommentRepository.addCommentInThread = jest.fn()
-      .mockImplementation(() => Promise.resolve());
+      .mockImplementation(() => Promise.resolve(expectedComment));
     mockAuthenticationTokenManager.decodePayload = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
@@ -44,6 +51,7 @@ describe('AddCommentUseCase', () => {
     const addedComment = await getCommentUseCase.execute(useCasePayload, useCaseHeaders, useCaseParams);
 
     // Assert
+    expect(addedComment).toStrictEqual(expectedComment);
     expect(mockCommentRepository.addCommentInThread).toBeCalledWith(new AddComment({
       threadId: useCaseParams.threadId,
       content: useCasePayload.content,

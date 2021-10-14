@@ -10,9 +10,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addCommentInThread(addComment) {
-    const { threadId, content, owner } = addComment;
-
+  async verifyThreadAvailability(threadId) {
     const queryThread = {
       text: 'SELECT * FROM threads WHERE id = $1',
       values: [threadId],
@@ -22,6 +20,29 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (resultThread.rowCount === 0) {
       throw new NotFoundError('thread tidak ditemukan');
     }
+  }
+
+  async verifyCommentAvailability(threadId, commentId, owner) {
+    const checkQuery = {
+      text: 'SELECT * FROM comments WHERE "threadId" = $1 AND id = $2',
+      values: [threadId, commentId],
+    };
+
+    const resultCheck = await this._pool.query(checkQuery);
+
+    if (resultCheck.rowCount === 0) {
+      throw new NotFoundError('komentar tidak ditemukan');
+    }
+
+    if (resultCheck.rows[0].owner !== owner) {
+      throw new AuthorizationError('autorisasi salah');
+    }
+  }
+
+  async addCommentInThread(addComment) {
+    const { threadId, content, owner } = addComment;
+
+    this.verifyThreadAvailability(threadId);
 
     const id = `comment-${this._idGenerator()}`;
 
@@ -38,20 +59,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async deleteCommentInThread(deleteComment) {
     const { threadId, commentId, owner } = deleteComment;
 
-    const checkQuery = {
-      text: 'SELECT * FROM comments WHERE "threadId" = $1 AND id = $2',
-      values: [threadId, commentId],
-    };
-
-    const resultCheck = await this._pool.query(checkQuery);
-
-    if (resultCheck.rowCount === 0) {
-      throw new NotFoundError('komentar tidak ditemukan');
-    }
-
-    if (resultCheck.rows[0].owner !== owner) {
-      throw new AuthorizationError('autorisasi salah');
-    }
+    this.verifyCommentAvailability(threadId, commentId, owner);
 
     const query = {
       text: 'UPDATE comments SET is_delete = $4 WHERE "threadId" = $1 AND id = $2 AND owner = $3',
