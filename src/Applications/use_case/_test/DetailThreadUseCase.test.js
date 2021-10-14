@@ -16,7 +16,22 @@ describe('DetailThreadUseCase', () => {
       id: 'thread-123',
       title: 'judul',
       body: 'isi',
-      owner: 'user-123',
+      date: '2021-09-22',
+      username: 'user-123',
+      comments: [
+        {
+          id: 'comment-123',
+          username: 'user-123',
+          content: 'bagus',
+          is_delete: null,
+        },
+        {
+          id: 'comment-122',
+          username: 'user-122',
+          content: 'bagus',
+          is_delete: 1,
+        },
+      ],
     };
 
     /** creating dependency of use case */

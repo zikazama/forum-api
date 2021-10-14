@@ -42,7 +42,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async addCommentInThread(addComment) {
     const { threadId, content, owner } = addComment;
 
-    this.verifyThreadAvailability(threadId);
+    await this.verifyThreadAvailability(threadId);
 
     const id = `comment-${this._idGenerator()}`;
 
@@ -59,7 +59,7 @@ class CommentRepositoryPostgres extends CommentRepository {
   async deleteCommentInThread(deleteComment) {
     const { threadId, commentId, owner } = deleteComment;
 
-    this.verifyCommentAvailability(threadId, commentId, owner);
+    await this.verifyCommentAvailability(threadId, commentId, owner);
 
     const query = {
       text: 'UPDATE comments SET is_delete = $4 WHERE "threadId" = $1 AND id = $2 AND owner = $3',
