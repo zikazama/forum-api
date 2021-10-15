@@ -1,10 +1,13 @@
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
+const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const AddComment = require('../../../Domains/comments/entities/AddComment');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
+const AddUser = require('../../../Domains/users/entities/RegisterUser');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
+const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 

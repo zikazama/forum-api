@@ -1,8 +1,9 @@
 const DetailThread = require('../../Domains/threads/entities/DetailThread');
 
 class DetailThreadUseCase {
-  constructor({ threadRepository }) {
+  constructor({ threadRepository, commentRepository }) {
     this._threadRepository = threadRepository;
+    this._commentRepository = commentRepository;
   }
 
   async filterDeletedComment(results) {
@@ -28,7 +29,10 @@ class DetailThreadUseCase {
 
   async execute(useCaseParams) {
     const detailThread = new DetailThread(useCaseParams);
-    const results = await this._threadRepository.getDetailThread(detailThread);
+    const results = await this._threadRepository.getThread(detailThread);
+    const comments = await this._commentRepository.getCommentInThread(detailThread);
+    results.comments = comments;
+
     const data = await this.filterDeletedComment(results);
     return data;
   }
