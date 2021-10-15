@@ -9,6 +9,7 @@ exports.up = (pgm) => {
     threadId: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: '"threads"',
     },
     content: {
       type: 'TEXT',
@@ -17,6 +18,7 @@ exports.up = (pgm) => {
     owner: {
       type: 'VARCHAR(50)',
       notNull: true,
+      references: '"users"',
     },
     is_delete: {
       type: 'CHAR(1)',

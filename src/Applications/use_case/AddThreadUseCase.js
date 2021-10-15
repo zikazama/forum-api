@@ -6,11 +6,16 @@ class AddThreadUseCase {
     this._authenticationTokenManager = authenticationTokenManager;
   }
 
-  async execute(useCasePayload, useCaseHeaders) {
-    const { authorization } = useCaseHeaders;
+  async _verifyPayload({ authorization }) {
     if (authorization === undefined) {
       throw new Error('ADD_THREAD.NO_AUTHORIZATION');
     }
+  }
+
+  async execute(useCasePayload, useCaseHeaders) {
+    const { authorization } = useCaseHeaders;
+    await this._verifyPayload({ authorization });
+
     const splitAuth = authorization.split(' ');
     const { id } = await this._authenticationTokenManager.decodePayload(
       splitAuth[1],

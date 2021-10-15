@@ -41,4 +41,16 @@ describe('AddComment entities', () => {
     expect(addComment.content).toEqual(payload.content);
     expect(addComment.owner).toEqual(payload.owner);
   });
+
+  it('should throw error when content contains more than 150 character', () => {
+    // Arrange
+    const payload = {
+      threadId: 'Judul',
+      owner: 'user-123',
+      content: 'dicodingindonesiadicodingindonesiadicodingindonesiadicodingdicodingindonesiadicodingindonesiadicodingindonesiadicodingdicodingindonesiadicodingindonesiadicodingindonesiadicoding',
+    };
+
+    // Action and Assert
+    expect(() => new AddComment(payload)).toThrowError('ADD_COMMENT.TITLE_LIMIT_CHAR');
+  });
 });

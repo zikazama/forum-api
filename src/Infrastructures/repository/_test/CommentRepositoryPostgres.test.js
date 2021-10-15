@@ -19,19 +19,40 @@ describe('CommentRepositoryPostgres', () => {
   });
 
   describe('verifyAvailableThread function', () => {
-    it('should throw InvariantError when thread not available', async () => {
+    it('should not throw NotFoundError when comment available', async () => {
       // Arrange
+
+      const addThread = new AddThread({
+        title: 'judul',
+        body: 'isi',
+        owner: 'user-123',
+      });
+
       const addComment = new AddComment({
         threadId: 'thread-123',
         content: 'isi',
         owner: 'user-123',
       });
-      // eslint-disable-next-line max-len
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await threadRepositoryPostgres.addThread(addThread);
+      await commentRepositoryPostgres.addCommentInThread(addComment);
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('thread-123', 'comment-123', 'user-123')).resolves.not.toThrowError(NotFoundError);
+    });
+
+    it('should throw NotFoundError when comment not available', async () => {
+      // Arrange
+
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action & Assert
-      // eslint-disable-next-line max-len
-      await expect(commentRepositoryPostgres.verifyThreadAvailability(addComment.threadId)).rejects.toThrowError(NotFoundError);
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('thread-123', 'comment-123', 'user-123')).rejects.toThrowError(NotFoundError);
     });
 
     it('should not throw NotFoundError when thread available', async () => {
@@ -52,6 +73,15 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyThreadAvailability('thread-123')).resolves.not.toThrowError(NotFoundError);
+    });
+
+    it('should throw NotFoundError when thread not available', async () => {
+      // Arrange
+
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.verifyThreadAvailability('thread-123')).rejects.toThrowError(NotFoundError);
     });
   });
 

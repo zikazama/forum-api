@@ -10,8 +10,9 @@ class CommentsHandler {
 
   async postCommentHandler(request, h) {
     const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
+    const { authorization } = request.headers;
     // eslint-disable-next-line max-len
-    const addedComment = await addCommentUseCase.execute(request.payload, request.headers, request.params);
+    const addedComment = await addCommentUseCase.execute(request.payload, authorization, request.params);
 
     const response = h.response({
       status: 'success',

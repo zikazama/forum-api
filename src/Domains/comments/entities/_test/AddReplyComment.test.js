@@ -1,6 +1,19 @@
 const AddReplyComment = require('../AddReplyComment');
 
 describe('AddReplyComment entities', () => {
+  it('should throw error when content contains more than 50 character', () => {
+    // Arrange
+    const payload = {
+      threadId: 'Judul',
+      commentId: 'id',
+      content: 'dicodingindonesiadicodingindonesiadicodingindonesia',
+      owner: 'user-123',
+    };
+
+    // Action and Assert
+    expect(() => new AddReplyComment(payload)).toThrowError('ADD_REPLY_COMMENT.TITLE_LIMIT_CHAR');
+  });
+
   it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {

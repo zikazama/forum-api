@@ -6,15 +6,19 @@ class AddCommentUseCase {
     this._authenticationTokenManager = authenticationTokenManager;
   }
 
-  async execute(useCasePayload, useCaseHeaders, useCaseParams) {
-    const { authorization } = useCaseHeaders;
-    const { threadId } = useCaseParams;
-    if (authorization === undefined) {
+  async _verifyPayload({ authorization, threadId }) {
+    if (authorization === undefined || authorization === null) {
       throw new Error('ADD_COMMENT.NO_AUTHORIZATION');
     }
-    if (threadId === undefined) {
+    if (threadId === undefined || threadId === null) {
       throw new Error('ADD_COMMENT.NO_PARAMS');
     }
+  }
+
+  async execute(useCasePayload, authorization, useCaseParams) {
+    const { threadId } = useCaseParams;
+    await this._verifyPayload({ authorization, threadId });
+
     const splitAuth = authorization.split(' ');
     const { id } = await this._authenticationTokenManager.decodePayload(
       splitAuth[1],

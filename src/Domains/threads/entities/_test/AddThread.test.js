@@ -1,6 +1,18 @@
 const AddThread = require('../AddThread');
 
 describe('AddThread entities', () => {
+  it('should throw error when content title more than 50 character', () => {
+    // Arrange
+    const payload = {
+      body: 'Ini Isi',
+      owner: 'user-123',
+      title: 'dicodingindonesiadicodingindonesiadicodingindonesia',
+    };
+
+    // Action and Assert
+    expect(() => new AddThread(payload)).toThrowError('ADD_THREAD.TITLE_LIMIT_CHAR');
+  });
+
   it('should throw error when payload does not contain needed property', () => {
     // Arrange
     const payload = {
