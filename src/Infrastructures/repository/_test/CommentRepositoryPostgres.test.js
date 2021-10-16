@@ -21,7 +21,7 @@ describe('CommentRepositoryPostgres', () => {
     await pool.end();
   });
 
-  describe('verifyAvailableThread function', () => {
+  describe('Available thread and comment function', () => {
     it('should not throw NotFoundError when comment available', async () => {
       // Arrange
 
@@ -85,6 +85,33 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyThreadAvailability('thread-123')).rejects.toThrowError(NotFoundError);
+    });
+
+    it('should get comment', async () => {
+      // Arrange
+
+      const addThread = new AddThread({
+        title: 'judul',
+        body: 'isi',
+        owner: 'user-123',
+      });
+
+      const addComment = new AddComment({
+        threadId: 'thread-123',
+        content: 'isi',
+        owner: 'user-123',
+      });
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await threadRepositoryPostgres.addThread(addThread);
+      await commentRepositoryPostgres.addCommentInThread(addComment);
+
+      // Action & Assert
+      await expect(commentRepositoryPostgres.getCommentInThread({ threadId: 'thread-123' })).resolves.not.toThrowError(NotFoundError);
     });
   });
 
