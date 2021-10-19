@@ -4,6 +4,7 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const AddComment = require('../../../Domains/comments/entities/AddComment');
 const AddThread = require('../../../Domains/threads/entities/AddThread');
 const AddUser = require('../../../Domains/users/entities/RegisterUser');
+const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const pool = require('../../database/postgres/pool');
 const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
@@ -15,6 +16,7 @@ describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
     await CommentsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -24,6 +26,11 @@ describe('CommentRepositoryPostgres', () => {
   describe('Available thread and comment function', () => {
     it('should not throw NotFoundError when comment available', async () => {
       // Arrange
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
 
       const addThread = new AddThread({
         title: 'judul',
@@ -38,10 +45,12 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
       await commentRepositoryPostgres.addCommentInThread(addComment);
 
@@ -60,6 +69,11 @@ describe('CommentRepositoryPostgres', () => {
 
     it('should not throw NotFoundError when thread available', async () => {
       // Arrange
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
 
       const addThread = new AddThread({
         title: 'judul',
@@ -68,10 +82,12 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
 
       // Action & Assert
@@ -89,6 +105,11 @@ describe('CommentRepositoryPostgres', () => {
 
     it('should get comment', async () => {
       // Arrange
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
 
       const addThread = new AddThread({
         title: 'judul',
@@ -103,10 +124,12 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
       await commentRepositoryPostgres.addCommentInThread(addComment);
 
@@ -118,6 +141,11 @@ describe('CommentRepositoryPostgres', () => {
   describe('addComment function', () => {
     it('should persist add thread and return added comment correctly', async () => {
       // Arrange
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
 
       const addThread = new AddThread({
         title: 'judul',
@@ -132,16 +160,57 @@ describe('CommentRepositoryPostgres', () => {
       });
 
       const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
       const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
       await commentRepositoryPostgres.addCommentInThread(addComment);
 
       // Assert
       const comments = await CommentsTableTestHelper.getDetailComment('comment-123');
       expect(comments).toHaveLength(1);
+    });
+  });
+
+  describe('deleteComment function', () => {
+    it('should persist add thread and return added comment correctly', async () => {
+      // Arrange
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const addThread = new AddThread({
+        title: 'judul',
+        body: 'isi',
+        owner: 'user-123',
+      });
+
+      const addComment = new AddComment({
+        threadId: 'thread-123',
+        content: 'isi',
+        owner: 'user-123',
+      });
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action
+      await userRepositoryPostgres.addUser(registerUser);
+      await threadRepositoryPostgres.addThread(addThread);
+      await commentRepositoryPostgres.addCommentInThread(addComment);
+      await commentRepositoryPostgres
+        .deleteCommentInThread({ threadId: 'thread-123', commentId: 'comment-123', owner: 'user-123' });
+
+      // Assert
+      const comments = await CommentsTableTestHelper.getDetailComment('comment-123');
+      expect(comments[0].is_delete).toContain('1');
     });
   });
 });

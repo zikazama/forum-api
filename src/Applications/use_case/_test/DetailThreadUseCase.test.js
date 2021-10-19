@@ -73,10 +73,17 @@ describe('DetailThreadUseCase', () => {
     });
 
     // Action
+    await getDetailThreadUseCase.execute(useCasePayload);
     const result = await getDetailThreadUseCase.filterDeletedComment(detailThread);
 
     // Assert
     expect(result).toStrictEqual(detailThread);
+    expect(mockThreadRepository.getThread).toBeCalledWith(new DetailThread({
+      threadId: useCasePayload.threadId,
+    }));
+    expect(mockCommentRepository.getCommentInThread).toBeCalledWith(new DetailThread({
+      threadId: useCasePayload.threadId,
+    }));
   });
 
   it('should orchestrating the add thread action correctly', async () => {
@@ -130,6 +137,9 @@ describe('DetailThreadUseCase', () => {
     // Assert
     expect(detailThread).toStrictEqual(expectedThread);
     expect(mockThreadRepository.getThread).toBeCalledWith(new DetailThread({
+      threadId: useCasePayload.threadId,
+    }));
+    expect(mockCommentRepository.getCommentInThread).toBeCalledWith(new DetailThread({
       threadId: useCasePayload.threadId,
     }));
   });

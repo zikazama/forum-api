@@ -37,7 +37,12 @@ describe('DeleteCommentUseCase', () => {
     });
 
     // Assert
-    await expect(deleteCommentUseCase.execute(useCaseParams, useCaseHeaders))
+    await expect(deleteCommentUseCase
+      .execute({
+        userId: useCaseHeaders.authorization,
+        threadId: useCaseParams.threadId,
+        commentId: useCaseParams.commentId,
+      }))
       .rejects
       .toThrowError('DELETE_COMMENT.NO_AUTHORIZATION');
   });
@@ -70,7 +75,12 @@ describe('DeleteCommentUseCase', () => {
     });
 
     // Assert
-    await expect(deleteCommentUseCase.execute(useCaseParams, useCaseHeaders))
+    await expect(deleteCommentUseCase
+      .execute({
+        userId: useCaseHeaders.authorization,
+        threadId: useCaseParams.threadId,
+        commentId: useCaseParams.commentId,
+      }))
       .rejects
       .toThrowError('DELETE_COMMENT.NO_PARAMS');
   });
@@ -105,7 +115,13 @@ describe('DeleteCommentUseCase', () => {
 
     // Action
     // eslint-disable-next-line max-len
-    await deleteCommentUseCase.execute(useCaseParams, useCaseHeaders);
+    await deleteCommentUseCase.execute(
+      {
+        userId: useCaseHeaders.authorization,
+        threadId: useCaseParams.threadId,
+        commentId: useCaseParams.commentId,
+      },
+    );
 
     // Assert
     expect(mockCommentRepository.deleteCommentInThread).toBeCalledWith(new DeleteComment({
