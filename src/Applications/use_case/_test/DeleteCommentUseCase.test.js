@@ -39,7 +39,7 @@ describe('DeleteCommentUseCase', () => {
     // Assert
     await expect(deleteCommentUseCase
       .execute({
-        userId: useCaseHeaders.authorization,
+        token: useCaseHeaders.authorization,
         threadId: useCaseParams.threadId,
         commentId: useCaseParams.commentId,
       }))
@@ -77,7 +77,7 @@ describe('DeleteCommentUseCase', () => {
     // Assert
     await expect(deleteCommentUseCase
       .execute({
-        userId: useCaseHeaders.authorization,
+        token: useCaseHeaders.authorization,
         threadId: useCaseParams.threadId,
         commentId: useCaseParams.commentId,
       }))
@@ -117,7 +117,7 @@ describe('DeleteCommentUseCase', () => {
     // eslint-disable-next-line max-len
     await deleteCommentUseCase.execute(
       {
-        userId: useCaseHeaders.authorization,
+        token: useCaseHeaders.authorization,
         threadId: useCaseParams.threadId,
         commentId: useCaseParams.commentId,
       },

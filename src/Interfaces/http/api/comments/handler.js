@@ -1,10 +1,10 @@
 const AddCommentUseCase = require('../../../../Applications/use_case/AddCommentUseCase');
 const DeleteCommentUseCase = require('../../../../Applications/use_case/DeleteCommentUseCase');
+const AuthenticationTokenManager = require('../../../../Applications/security/AuthenticationTokenManager');
 
 class CommentsHandler {
-  constructor(container, authenticationTokenManager) {
+  constructor(container) {
     this._container = container;
-    this._authenticationTokenManager = authenticationTokenManager;
     this.postCommentHandler = this.postCommentHandler.bind(this);
     this.deleteCommentHandler = this.deleteCommentHandler.bind(this);
   }
@@ -40,13 +40,10 @@ class CommentsHandler {
     const { threadId, commentId } = request.params;
     await this._verifyPayload({ authorization, threadId, commentId });
     const splitAuth = authorization.split(' ');
-    const { id: userId } = await this._authenticationTokenManager.decodePayload(
-      splitAuth[1],
-    );
     const deleteCommentUseCase = this._container.getInstance(DeleteCommentUseCase.name);
 
     // eslint-disable-next-line max-len
-    await deleteCommentUseCase.execute({ userId, threadId, commentId });
+    await deleteCommentUseCase.execute({ token: splitAuth[1], threadId, commentId });
 
     const response = h.response({
       status: 'success',

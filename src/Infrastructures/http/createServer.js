@@ -28,7 +28,7 @@ const createServer = async (container) => {
     },
     {
       plugin: comments,
-      options: { container, AuthenticationTokenManager },
+      options: { container },
     },
   ]);
 
