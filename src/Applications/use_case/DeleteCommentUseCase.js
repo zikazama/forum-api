@@ -6,8 +6,8 @@ class DeleteCommentUseCase {
     this._authenticationTokenManager = authenticationTokenManager;
   }
 
-  async _verifyPayload({ token, threadId, commentId }) {
-    if (token === undefined || token === null) {
+  async _verifyPayload({ authorization, threadId, commentId }) {
+    if (authorization === undefined || authorization === null) {
       throw new Error('DELETE_COMMENT.NO_AUTHORIZATION');
     }
     if (threadId === undefined || commentId === undefined) {
@@ -15,12 +15,11 @@ class DeleteCommentUseCase {
     }
   }
 
-  async execute({ token, threadId, commentId }) {
-    await this._verifyPayload({ token, threadId, commentId });
-    const { id: userId } = await this._authenticationTokenManager.decodePayload(
-      token,
-    );
-    const deleteComment = new DeleteComment({ owner: userId, threadId, commentId });
+  async execute({ authorization, threadId, commentId }) {
+    await this._verifyPayload({ authorization, threadId, commentId });
+    // eslint-disable-next-line max-len
+    const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
+    const deleteComment = new DeleteComment({ owner: id, threadId, commentId });
     await this._commentRepository.deleteCommentInThread(deleteComment);
   }
 }

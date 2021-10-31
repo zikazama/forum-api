@@ -88,7 +88,8 @@ describe('AddCommentUseCase', () => {
     });
 
     // Assert
-    await expect(getCommentUseCase.execute(useCasePayload, useCaseHeaders, useCaseParams))
+    // eslint-disable-next-line max-len
+    await expect(getCommentUseCase.execute(useCasePayload, useCaseHeaders.authorization, useCaseParams))
       .rejects
       .toThrowError('ADD_COMMENT.NO_PARAMS');
   });
@@ -100,7 +101,9 @@ describe('AddCommentUseCase', () => {
       owner: 'user-123',
     };
 
-    const useCaseHeaders = 'jey';
+    const useCaseHeaders = {
+      authorization: 'jey',
+    };
 
     const useCaseParams = {
       threadId: 'thread-123',
@@ -120,7 +123,7 @@ describe('AddCommentUseCase', () => {
     /** mocking needed function */
     mockCommentRepository.addCommentInThread = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedComment));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
     /** creating use case instance */
@@ -131,7 +134,7 @@ describe('AddCommentUseCase', () => {
 
     // Action
     // eslint-disable-next-line max-len
-    const addedComment = await getCommentUseCase.execute(useCasePayload, useCaseHeaders, useCaseParams);
+    const addedComment = await getCommentUseCase.execute(useCasePayload, useCaseHeaders.authorization, useCaseParams);
 
     // Assert
     expect(addedComment).toStrictEqual(expectedComment);
@@ -140,5 +143,6 @@ describe('AddCommentUseCase', () => {
       content: useCasePayload.content,
       owner: useCasePayload.owner,
     }));
+    expect(mockAuthenticationTokenManager.verifyTokenFromHeader).toBeCalledWith('jey');
   });
 });

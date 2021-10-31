@@ -67,6 +67,58 @@ describe('JwtTokenManager', () => {
     });
   });
 
+  describe('verifyAccessToken function', () => {
+    it('should throw InvariantError when verification failed', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = await jwtTokenManager.createRefreshToken({ username: 'dicoding' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(accessToken))
+        .rejects
+        .toThrow(InvariantError);
+    });
+
+    it('should not throw InvariantError when refresh token verified', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const refreshToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(refreshToken))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+  });
+
+  describe('getTokenFromHeader function', () => {
+    it('should decode payload correctly', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+
+      // Action
+      const token = await jwtTokenManager.getTokenFromHeader(`Bearer ${accessToken}`);
+
+      // Action & Assert
+      expect(token).toEqual(accessToken);
+    });
+  });
+
+  describe('verifyTokenFromHeader function', () => {
+    it('should decode payload correctly', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'dicoding' });
+
+      // Action
+      const { username } = await jwtTokenManager.verifyTokenFromHeader(`Bearer ${accessToken}`);
+
+      // Action & Assert
+      expect(username).toEqual('dicoding');
+    });
+  });
+
   describe('decodePayload function', () => {
     it('should decode payload correctly', async () => {
       // Arrange

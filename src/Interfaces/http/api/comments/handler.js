@@ -25,25 +25,13 @@ class CommentsHandler {
     return response;
   }
 
-  async _verifyPayload({ authorization, threadId, commentId }) {
-    if (authorization === undefined) {
-      console.log();
-      throw new Error('DELETE_COMMENT.NO_AUTHORIZATION');
-    }
-    if (threadId === undefined || commentId === undefined) {
-      throw new Error('DELETE_COMMENT.NO_PARAMS');
-    }
-  }
-
   async deleteCommentHandler(request, h) {
     const { authorization } = request.headers;
     const { threadId, commentId } = request.params;
-    await this._verifyPayload({ authorization, threadId, commentId });
-    const splitAuth = authorization.split(' ');
     const deleteCommentUseCase = this._container.getInstance(DeleteCommentUseCase.name);
 
     // eslint-disable-next-line max-len
-    await deleteCommentUseCase.execute({ token: splitAuth[1], threadId, commentId });
+    await deleteCommentUseCase.execute({ authorization, threadId, commentId });
 
     const response = h.response({
       status: 'success',

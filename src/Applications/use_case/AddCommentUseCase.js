@@ -19,10 +19,8 @@ class AddCommentUseCase {
     const { threadId } = useCaseParams;
     await this._verifyPayload({ authorization, threadId });
 
-    const splitAuth = authorization.split(' ');
-    const { id } = await this._authenticationTokenManager.decodePayload(
-      splitAuth[1],
-    );
+    // eslint-disable-next-line max-len
+    const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
     const addComment = new AddComment({ owner: id, threadId, ...useCasePayload });
     return this._commentRepository.addCommentInThread(addComment);
   }

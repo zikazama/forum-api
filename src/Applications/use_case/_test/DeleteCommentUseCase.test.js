@@ -77,7 +77,7 @@ describe('DeleteCommentUseCase', () => {
     // Assert
     await expect(deleteCommentUseCase
       .execute({
-        token: useCaseHeaders.authorization,
+        authorization: useCaseHeaders.authorization,
         threadId: useCaseParams.threadId,
         commentId: useCaseParams.commentId,
       }))
@@ -104,7 +104,7 @@ describe('DeleteCommentUseCase', () => {
     mockCommentRepository.deleteCommentInThread = jest.fn()
       // eslint-disable-next-line max-len
       .mockImplementation(() => Promise.resolve());
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
     /** creating use case instance */
@@ -117,7 +117,7 @@ describe('DeleteCommentUseCase', () => {
     // eslint-disable-next-line max-len
     await deleteCommentUseCase.execute(
       {
-        token: useCaseHeaders.authorization,
+        authorization: useCaseHeaders.authorization,
         threadId: useCaseParams.threadId,
         commentId: useCaseParams.commentId,
       },
@@ -129,5 +129,6 @@ describe('DeleteCommentUseCase', () => {
       commentId: useCaseParams.commentId,
       owner: useCaseHeaders.authorization,
     }));
+    expect(mockAuthenticationTokenManager.verifyTokenFromHeader).toBeCalledWith('user-123');
   });
 });

@@ -10,6 +10,7 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 const ThreadRepositoryPostgres = require('../ThreadRepositoryPostgres');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 
 describe('CommentRepositoryPostgres', () => {
@@ -101,6 +102,37 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyThreadAvailability('thread-123')).rejects.toThrowError(NotFoundError);
+    });
+
+    it('should throw AuthorizationError when user have no authorization', async () => {
+      const registerUser = new RegisterUser({
+        username: 'dicoding',
+        password: 'secret_password',
+        fullname: 'Dicoding Indonesia',
+      });
+
+      const addThread = new AddThread({
+        title: 'judul',
+        body: 'isi',
+        owner: 'user-123',
+      });
+
+      const addComment = new AddComment({
+        threadId: 'thread-123',
+        content: 'isi',
+        owner: 'user-123',
+      });
+
+      const fakeIdGenerator = () => '123'; // stub!
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGenerator);
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
+
+      // Action & Assert
+      await userRepositoryPostgres.addUser(registerUser);
+      await threadRepositoryPostgres.addThread(addThread);
+      await commentRepositoryPostgres.addCommentInThread(addComment);
+      await expect(commentRepositoryPostgres.verifyCommentAvailability('thread-123', 'comment-123', 'user-234')).rejects.toThrowError(AuthorizationError);
     });
 
     it('should get comment', async () => {
