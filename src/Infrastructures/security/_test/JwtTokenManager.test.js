@@ -1,5 +1,6 @@
 const Jwt = require('@hapi/jwt');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
+const AuthenticationError = require('../../../Commons/exceptions/AuthenticationError');
 const JwtTokenManager = require('../JwtTokenManager');
 
 describe('JwtTokenManager', () => {
@@ -92,6 +93,13 @@ describe('JwtTokenManager', () => {
   });
 
   describe('getTokenFromHeader function', () => {
+    it('should decode payload false', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+
+      // Action & Assert
+      await expect(jwtTokenManager.getTokenFromHeader()).rejects.toThrow(AuthenticationError);
+    });
     it('should decode payload correctly', async () => {
       // Arrange
       const jwtTokenManager = new JwtTokenManager(Jwt.token);
@@ -106,6 +114,13 @@ describe('JwtTokenManager', () => {
   });
 
   describe('verifyTokenFromHeader function', () => {
+    it('should decode payload false', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyTokenFromHeader()).rejects.toThrow(AuthenticationError);
+    });
     it('should decode payload correctly', async () => {
       // Arrange
       const jwtTokenManager = new JwtTokenManager(Jwt.token);

@@ -10,6 +10,7 @@ const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 describe('ThreadRepositoryPostgres', () => {
   afterEach(async () => {
     await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -17,6 +18,29 @@ describe('ThreadRepositoryPostgres', () => {
   });
 
   describe('Available thread and comment function', () => {
+    it('should get thread not found', async () => {
+      // Arrange
+
+      const registerUser = new RegisterUser({
+        username: 'zikazama',
+        password: '123',
+        fullname: 'Fauzi',
+      });
+
+      const addThread = new AddThread({
+        title: 'judul',
+        body: 'isi',
+        owner: 'user-234',
+      });
+
+      const fakeIdGeneratorThread = () => '123'; // stub!
+      const fakeIdGeneratorUser = () => '234'; // stub!
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGeneratorThread);
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGeneratorUser);
+
+      // Action & Assert
+      await expect(threadRepositoryPostgres.getThread({ threadId: 'thread-123' })).rejects.toThrowError(NotFoundError);
+    });
     it('should get thread', async () => {
       // Arrange
 
@@ -43,21 +67,32 @@ describe('ThreadRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(threadRepositoryPostgres.getThread({ threadId: 'thread-123' })).resolves.not.toThrowError(NotFoundError);
+      expect(await threadRepositoryPostgres.getThread({ threadId: 'thread-123' })).not.toBeNull();
     });
   });
 
   describe('addThread function', () => {
     it('should persist add thread and return added thread correctly', async () => {
       // Arrange
+
+      const registerUser = new RegisterUser({
+        username: 'zikazama',
+        password: '234',
+        fullname: 'Fauzi',
+      });
+
       const addThread = new AddThread({
         title: 'judul',
         body: 'isi',
-        owner: 'user-123',
+        owner: 'user-234',
       });
-      const fakeIdGenerator = () => '123'; // stub!
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeIdGeneratorThread = () => '123'; // stub!
+      const fakeIdGeneratorUser = () => '234'; // stub!
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGeneratorThread);
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGeneratorUser);
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
 
       // Assert
@@ -67,15 +102,24 @@ describe('ThreadRepositoryPostgres', () => {
 
     it('should return added thread correctly', async () => {
       // Arrange
+      const registerUser = new RegisterUser({
+        username: 'zikazama',
+        password: '234',
+        fullname: 'Fauzi',
+      });
+
       const addThread = new AddThread({
         title: 'judul',
         body: 'isi',
-        owner: 'user-123',
+        owner: 'user-234',
       });
-      const fakeIdGenerator = () => '123'; // stub!
-      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGenerator);
+      const fakeIdGeneratorThread = () => '123'; // stub!
+      const fakeIdGeneratorUser = () => '234'; // stub!
+      const threadRepositoryPostgres = new ThreadRepositoryPostgres(pool, fakeIdGeneratorThread);
+      const userRepositoryPostgres = new UserRepositoryPostgres(pool, fakeIdGeneratorUser);
 
       // Action
+      await userRepositoryPostgres.addUser(registerUser);
       const addedThread = await threadRepositoryPostgres.addThread(addThread);
 
       // Assert
@@ -83,7 +127,7 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'thread-123',
         title: 'judul',
         body: 'isi',
-        owner: 'user-123',
+        owner: 'user-234',
       });
     });
   });

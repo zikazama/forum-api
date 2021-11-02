@@ -49,6 +49,7 @@ describe('AddThreadUseCase', () => {
     // Assert
     expect(verifiedThread).toBeUndefined();
     expect(addedThread).toStrictEqual(expectedThread);
+    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(undefined);
     expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
       title: useCasePayload.title,
       body: useCasePayload.body,

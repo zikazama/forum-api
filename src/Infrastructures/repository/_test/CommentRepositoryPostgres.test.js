@@ -167,6 +167,7 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action & Assert
       await expect(commentRepositoryPostgres.getCommentInThread({ threadId: 'thread-123' })).resolves.not.toThrowError(NotFoundError);
+      expect(await commentRepositoryPostgres.getCommentInThread({ threadId: 'thread-123' })).toHaveLength(1);
     });
   });
 
@@ -199,10 +200,15 @@ describe('CommentRepositoryPostgres', () => {
       // Action
       await userRepositoryPostgres.addUser(registerUser);
       await threadRepositoryPostgres.addThread(addThread);
-      await commentRepositoryPostgres.addCommentInThread(addComment);
+      const resultAddComment = await commentRepositoryPostgres.addCommentInThread(addComment);
 
       // Assert
       const comments = await CommentsTableTestHelper.getDetailComment('comment-123');
+      expect(resultAddComment).toStrictEqual(
+        {
+          content: 'isi', id: 'comment-123', owner: 'user-123', threadId: 'thread-123',
+        },
+      );
       expect(comments).toHaveLength(1);
     });
   });
