@@ -1,82 +1,68 @@
-const Hapi = require('@hapi/hapi');
+const express = require('express');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
 const users = require('../../Interfaces/http/api/users');
 const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
-const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
 
 const createServer = async (container) => {
-  const server = Hapi.server({
-    host: process.env.HOST,
-    port: process.env.PORT,
+  const app = express();
+
+  app.use(express.json());
+  app.use((req, res, next) => {
+    // payload kosong dianggap objek kosong agar validasi use case yang menangani
+    req.body = req.body ?? {};
+    next();
   });
 
-  await server.register([
-    {
-      plugin: users,
-      options: { container },
-    },
-    {
-      plugin: authentications,
-      options: { container },
-    },
-    {
-      plugin: threads,
-      options: { container },
-    },
-    {
-      plugin: comments,
-      options: { container },
-    },
-  ]);
-
-  server.route({
-    method: 'GET',
-    path: '/',
-    handler: () => ({
+  app.get('/', (req, res) => {
+    res.json({
       value: 'Hello world!',
-    }),
+    });
   });
 
-  server.ext('onPreResponse', (request, h) => {
-    // mendapatkan konteks response dari request
-    const { response } = request;
+  app.use(users(container));
+  app.use(authentications(container));
+  app.use(threads(container));
+  app.use(comments(container));
 
-    if (response instanceof Error) {
-      // bila response tersebut error, tangani sesuai kebutuhan
-      const translatedError = DomainErrorTranslator.translate(response);
+  // route yang tidak terdaftar
+  app.use((req, res) => {
+    res.status(404).json({
+      status: 'fail',
+      message: 'Not Found',
+    });
+  });
 
-      // penanganan client error secara internal.
-      if (translatedError instanceof ClientError) {
-        const newResponse = h.response({
-          status: 'fail',
-          message: translatedError.message,
-        });
-        newResponse.code(translatedError.statusCode);
-        return newResponse;
-      }
-
-      // mempertahankan penanganan client error oleh hapi secara native, seperti 404, etc.
-      if (!translatedError.isServer) {
-        return h.continue;
-      }
-
-      // penanganan server error sesuai kebutuhan
-      const newResponse = h.response({
-        status: 'error',
-        message: 'terjadi kegagalan pada server kami',
+  // penanganan error terpusat
+  // eslint-disable-next-line no-unused-vars
+  app.use((error, req, res, next) => {
+    if (error.type === 'entity.parse.failed') {
+      res.status(400).json({
+        status: 'fail',
+        message: 'payload tidak valid',
       });
-      newResponse.code(500);
-      return newResponse;
+      return;
     }
 
-    // jika bukan error, lanjutkan dengan response sebelumnya (tanpa terintervensi)
-    return h.continue;
+    const translatedError = DomainErrorTranslator.translate(error);
+
+    if (translatedError instanceof ClientError) {
+      res.status(translatedError.statusCode).json({
+        status: 'fail',
+        message: translatedError.message,
+      });
+      return;
+    }
+
+    res.status(500).json({
+      status: 'error',
+      message: 'terjadi kegagalan pada server kami',
+    });
   });
 
-  return server;
+  return app;
 };
 
 module.exports = createServer;

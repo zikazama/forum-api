@@ -9,32 +9,28 @@ class ThreadsHandler {
     this.getDetailThreadHandler = this.getDetailThreadHandler.bind(this);
   }
 
-  async postThreadHandler(request, h) {
+  async postThreadHandler(req, res) {
     const addThreadUseCase = this._container.getInstance(AddThreadUseCase.name);
-    const addedThread = await addThreadUseCase.execute(request.payload, request.headers);
+    const addedThread = await addThreadUseCase.execute(req.body, req.headers);
 
-    const response = h.response({
+    res.status(201).json({
       status: 'success',
       data: {
         addedThread,
       },
     });
-    response.code(201);
-    return response;
   }
 
-  async getDetailThreadHandler(request, h) {
+  async getDetailThreadHandler(req, res) {
     const detailThreadUseCase = this._container.getInstance(DetailThreadUseCase.name);
-    const thread = await detailThreadUseCase.execute(request.params);
+    const thread = await detailThreadUseCase.execute(req.params);
 
-    const response = h.response({
+    res.status(200).json({
       status: 'success',
       data: {
         thread,
       },
     });
-    response.code(200);
-    return response;
   }
 }
 

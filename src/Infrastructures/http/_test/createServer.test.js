@@ -1,18 +1,16 @@
+const request = require('supertest');
 const createServer = require('../createServer');
 
 describe('HTTP server', () => {
   it('should response 404 when request unregistered route', async () => {
     // Arrange
-    const server = await createServer({});
+    const app = await createServer({});
 
     // Action
-    const response = await server.inject({
-      method: 'GET',
-      url: '/unregisteredRoute',
-    });
+    const response = await request(app).get('/unregisteredRoute');
 
     // Assert
-    expect(response.statusCode).toEqual(404);
+    expect(response.status).toEqual(404);
   });
 
   it('should handle server error correctly', async () => {
@@ -22,19 +20,14 @@ describe('HTTP server', () => {
       fullname: 'Dicoding Indonesia',
       password: 'super_secret',
     };
-    const server = await createServer({}); // fake injection
+    const app = await createServer({}); // fake injection
 
     // Action
-    const response = await server.inject({
-      method: 'POST',
-      url: '/users',
-      payload: requestPayload,
-    });
+    const response = await request(app).post('/users').send(requestPayload);
 
     // Assert
-    const responseJson = JSON.parse(response.payload);
-    expect(response.statusCode).toEqual(500);
-    expect(responseJson.status).toEqual('error');
-    expect(responseJson.message).toEqual('terjadi kegagalan pada server kami');
+    expect(response.status).toEqual(500);
+    expect(response.body.status).toEqual('error');
+    expect(response.body.message).toEqual('terjadi kegagalan pada server kami');
   });
 });

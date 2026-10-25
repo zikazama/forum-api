@@ -16,10 +16,8 @@ class AddThreadUseCase {
     const { authorization } = useCaseHeaders;
     await this._verifyPayload({ authorization });
 
-    const splitAuth = authorization.split(' ');
-    const { id } = await this._authenticationTokenManager.decodePayload(
-      splitAuth[1],
-    );
+    // token diverifikasi tanda tangannya, bukan sekadar di-decode
+    const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
     const addThread = new AddThread({ owner: id, ...useCasePayload });
     return this._threadRepository.addThread(addThread);
   }
