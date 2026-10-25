@@ -21,7 +21,8 @@ class AddCommentUseCase {
 
     // eslint-disable-next-line max-len
     const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
-    const addComment = new AddComment({ owner: id, threadId, ...useCasePayload });
+    // owner dan threadId dari token dan params, bukan dari body
+    const addComment = new AddComment({ ...useCasePayload, threadId, owner: id });
     return this._commentRepository.addCommentInThread(addComment);
   }
 }
