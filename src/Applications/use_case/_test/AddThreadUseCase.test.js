@@ -100,4 +100,43 @@ describe('AddThreadUseCase', () => {
       .rejects
       .toThrowError('ADD_THREAD.NO_AUTHORIZATION');
   });
+
+  it('should use owner from token instead of request payload', async () => {
+    // Arrange
+    const useCasePayload = {
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-lain',
+    };
+
+    const useCaseHeaders = {
+      authorization: 'Bearer token',
+    };
+
+    /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
+    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
+
+    /** mocking needed function */
+    mockThreadRepository.addThread = jest.fn()
+      .mockImplementation(() => Promise.resolve({}));
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
+      .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
+
+    /** creating use case instance */
+    const getThreadUseCase = new AddThreadUseCase({
+      threadRepository: mockThreadRepository,
+      authenticationTokenManager: mockAuthenticationTokenManager,
+    });
+
+    // Action
+    await getThreadUseCase.execute(useCasePayload, useCaseHeaders);
+
+    // Assert
+    expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-123',
+    }));
+  });
 });

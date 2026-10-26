@@ -9,12 +9,9 @@ const comments = require('../../Interfaces/http/api/comments');
 const createServer = async (container) => {
   const app = express();
 
+  // Express 4 mengisi req.body dengan objek kosong bila tidak ada payload,
+  // sehingga validasi use case yang menangani payload kosong.
   app.use(express.json());
-  app.use((req, res, next) => {
-    // payload kosong dianggap objek kosong agar validasi use case yang menangani
-    req.body = req.body ?? {};
-    next();
-  });
 
   app.get('/', (req, res) => {
     res.json({

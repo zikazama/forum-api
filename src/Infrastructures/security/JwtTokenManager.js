@@ -45,9 +45,13 @@ class JwtTokenManager extends AuthenticationTokenManager {
       throw new AuthenticationError('Missing authentication');
     }
     const token = header.replace(/^Bearer\s+/, '');
-    await this.verifyAccessToken(token);
-    const result = await this.decodePayload(token);
-    return result;
+    try {
+      this._jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
+    } catch (error) {
+      // token palsu atau kedaluwarsa pada resource terbatas adalah kesalahan autentikasi (401)
+      throw new AuthenticationError('access token tidak valid');
+    }
+    return this.decodePayload(token);
   }
 
   async decodePayload(token) {

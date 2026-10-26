@@ -18,7 +18,8 @@ class AddThreadUseCase {
 
     // token diverifikasi tanda tangannya, bukan sekadar di-decode
     const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
-    const addThread = new AddThread({ owner: id, ...useCasePayload });
+    // owner dari token, bukan dari body, agar tidak bisa menyamar sebagai pengguna lain
+    const addThread = new AddThread({ ...useCasePayload, owner: id });
     return this._threadRepository.addThread(addThread);
   }
 }

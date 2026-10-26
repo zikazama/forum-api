@@ -134,6 +134,27 @@ describe('JwtTokenManager', () => {
       // Assert
       expect(username).toEqual('dicoding');
     });
+
+    it('should throw AuthenticationError when token is invalid', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt);
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyTokenFromHeader('Bearer token-palsu'))
+        .rejects
+        .toThrow(AuthenticationError);
+    });
+
+    it('should throw AuthenticationError when token is signed with another key', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt);
+      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'dicoding' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyTokenFromHeader(`Bearer ${refreshToken}`))
+        .rejects
+        .toThrow(AuthenticationError);
+    });
   });
 
   describe('decodePayload function', () => {
@@ -147,6 +168,16 @@ describe('JwtTokenManager', () => {
 
       // Assert
       expect(expectedUsername).toEqual('dicoding');
+    });
+
+    it('should throw AuthenticationError when token cannot be decoded', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt);
+
+      // Action & Assert
+      await expect(jwtTokenManager.decodePayload('bukan-token'))
+        .rejects
+        .toThrow(AuthenticationError);
     });
   });
 });
