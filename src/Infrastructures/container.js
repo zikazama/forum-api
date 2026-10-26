@@ -5,7 +5,7 @@ const { createContainer } = require('instances-container');
 // external agency
 const { nanoid } = require('nanoid');
 const bcrypt = require('bcrypt');
-const Jwt = require('@hapi/jwt');
+const Jwt = require('jsonwebtoken');
 const pool = require('./database/postgres/pool');
 
 // service (repository, helper, manager, etc)
@@ -24,6 +24,8 @@ const AddThreadUseCase = require('../Applications/use_case/AddThreadUseCase');
 const DetailThreadUseCase = require('../Applications/use_case/DetailThreadUseCase');
 const AddCommentUseCase = require('../Applications/use_case/AddCommentUseCase');
 const DeleteCommentUseCase = require('../Applications/use_case/DeleteCommentUseCase');
+const AddReplyUseCase = require('../Applications/use_case/AddReplyUseCase');
+const DeleteReplyUseCase = require('../Applications/use_case/DeleteReplyUseCase');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
 const JwtTokenManager = require('./security/JwtTokenManager');
 const LoginUserUseCase = require('../Applications/use_case/LoginUserUseCase');
@@ -107,7 +109,7 @@ container.register([
     parameter: {
       dependencies: [
         {
-          concrete: Jwt.token,
+          concrete: Jwt,
         },
       ],
     },
@@ -187,6 +189,40 @@ container.register([
   {
     key: DeleteCommentUseCase.name,
     Class: DeleteCommentUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'commentRepository',
+          internal: CommentRepository.name,
+        },
+        {
+          name: 'authenticationTokenManager',
+          internal: AuthenticationTokenManager.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AddReplyUseCase.name,
+    Class: AddReplyUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'commentRepository',
+          internal: CommentRepository.name,
+        },
+        {
+          name: 'authenticationTokenManager',
+          internal: AuthenticationTokenManager.name,
+        },
+      ],
+    },
+  },
+  {
+    key: DeleteReplyUseCase.name,
+    Class: DeleteReplyUseCase,
     parameter: {
       injectType: 'destructuring',
       dependencies: [

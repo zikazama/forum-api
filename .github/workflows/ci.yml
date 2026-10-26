@@ -8,10 +8,26 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    # Database uji berjalan di container ini, tidak memakai server luar atau secret PG*_TEST.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: forum_api_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
  
     strategy:
       matrix:
-        node-version: [14.x]
+        node-version: [22.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
  
     steps:
@@ -27,15 +43,15 @@ jobs:
         npm run test
       env:
         CI: true
-        PGHOST_TEST: ${{ secrets.PGHOST_TEST }}
-        PGUSER_TEST: ${{ secrets.PGUSER_TEST }}
-        PGDATABASE_TEST: ${{ secrets.PGDATABASE_TEST }}
-        PGPASSWORD_TEST: ${{ secrets.PGPASSWORD_TEST }}
-        PGPORT_TEST: ${{ secrets.PGPORT_TEST }}
-        PGHOST: ${{ secrets.PGHOST_TEST }}
-        PGUSER: ${{ secrets.PGUSER_TEST }}
-        PGDATABASE: ${{ secrets.PGDATABASE_TEST }}
-        PGPASSWORD: ${{ secrets.PGPASSWORD_TEST }}
-        PGPORT: ${{ secrets.PGPORT_TEST }}
+        PGHOST_TEST: localhost
+        PGUSER_TEST: postgres
+        PGDATABASE_TEST: forum_api_test
+        PGPASSWORD_TEST: postgres
+        PGPORT_TEST: "5432"
+        PGHOST: localhost
+        PGUSER: postgres
+        PGDATABASE: forum_api_test
+        PGPASSWORD: postgres
+        PGPORT: "5432"
         ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
         REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}

@@ -6,6 +6,15 @@ class DetailThreadUseCase {
     this._commentRepository = commentRepository;
   }
 
+  filterDeletedReply(replies) {
+    return replies.map((reply) => ({
+      id: reply.id,
+      content: reply.is_delete === '1' ? '**balasan telah dihapus**' : reply.content,
+      date: reply.date,
+      username: reply.username,
+    }));
+  }
+
   async filterDeletedComment(results) {
     const data = {
       id: results.id,
@@ -31,7 +40,12 @@ class DetailThreadUseCase {
     const detailThread = new DetailThread(useCaseParams);
     const results = await this._threadRepository.getThread(detailThread);
     const comments = await this._commentRepository.getCommentInThread(detailThread);
-    results.comments = comments;
+    const replies = await this._commentRepository.getRepliesInThread(detailThread);
+
+    results.comments = comments.map((comment) => ({
+      ...comment,
+      replies: this.filterDeletedReply(replies.filter((reply) => reply.commentId === comment.id)),
+    }));
 
     const data = await this.filterDeletedComment(results);
     return data;

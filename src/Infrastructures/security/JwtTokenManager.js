@@ -9,17 +9,16 @@ class JwtTokenManager extends AuthenticationTokenManager {
   }
 
   async createAccessToken(payload) {
-    return this._jwt.generate(payload, process.env.ACCESS_TOKEN_KEY);
+    return this._jwt.sign(payload, process.env.ACCESS_TOKEN_KEY);
   }
 
   async createRefreshToken(payload) {
-    return this._jwt.generate(payload, process.env.REFRESH_TOKEN_KEY);
+    return this._jwt.sign(payload, process.env.REFRESH_TOKEN_KEY);
   }
 
   async verifyRefreshToken(token) {
     try {
-      const artifacts = this._jwt.decode(token);
-      this._jwt.verify(artifacts, process.env.REFRESH_TOKEN_KEY);
+      this._jwt.verify(token, process.env.REFRESH_TOKEN_KEY);
     } catch (error) {
       throw new InvariantError('refresh token tidak valid');
     }
@@ -27,8 +26,7 @@ class JwtTokenManager extends AuthenticationTokenManager {
 
   async verifyAccessToken(token) {
     try {
-      const artifacts = this._jwt.decode(token);
-      this._jwt.verify(artifacts, process.env.ACCESS_TOKEN_KEY);
+      this._jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
     } catch (error) {
       throw new InvariantError('access token tidak valid');
     }
@@ -47,14 +45,21 @@ class JwtTokenManager extends AuthenticationTokenManager {
       throw new AuthenticationError('Missing authentication');
     }
     const token = header.replace(/^Bearer\s+/, '');
-    await this.verifyAccessToken(token);
-    const result = await this.decodePayload(token);
-    return result;
+    try {
+      this._jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
+    } catch (error) {
+      // token palsu atau kedaluwarsa pada resource terbatas adalah kesalahan autentikasi (401)
+      throw new AuthenticationError('access token tidak valid');
+    }
+    return this.decodePayload(token);
   }
 
   async decodePayload(token) {
-    const artifacts = this._jwt.decode(token);
-    return artifacts.decoded.payload;
+    const payload = this._jwt.decode(token);
+    if (!payload) {
+      throw new AuthenticationError('access token tidak valid');
+    }
+    return payload;
   }
 }
 

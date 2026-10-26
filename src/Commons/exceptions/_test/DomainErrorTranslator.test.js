@@ -13,6 +13,19 @@ describe('DomainErrorTranslator', () => {
       .toStrictEqual(new InvariantError('tidak dapat membuat user baru karena username mengandung karakter terlarang'));
   });
 
+  it('should translate comment and reply errors correctly', () => {
+    expect(DomainErrorTranslator.translate(new Error('ADD_COMMENT.TITLE_LIMIT_CHAR')))
+      .toStrictEqual(new InvariantError('tidak dapat membuat comment baru karena karakter komentar melebihi batas limit'));
+    expect(DomainErrorTranslator.translate(new Error('ADD_REPLY.NOT_CONTAIN_NEEDED_PROPERTY')))
+      .toStrictEqual(new InvariantError('tidak dapat membuat balasan baru karena properti yang dibutuhkan tidak ada'));
+    expect(DomainErrorTranslator.translate(new Error('ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('tidak dapat membuat balasan baru karena tipe data tidak sesuai'));
+    expect(DomainErrorTranslator.translate(new Error('DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY')))
+      .toStrictEqual(new InvariantError('tidak dapat menghapus balasan karena properti yang dibutuhkan tidak ada'));
+    expect(DomainErrorTranslator.translate(new Error('DELETE_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION')))
+      .toStrictEqual(new InvariantError('tidak dapat menghapus balasan karena tipe data tidak sesuai'));
+  });
+
   it('should return original error when error message is not needed to translate', () => {
     // Arrange
     const error = new Error('some_error_message');

@@ -16,11 +16,10 @@ class AddThreadUseCase {
     const { authorization } = useCaseHeaders;
     await this._verifyPayload({ authorization });
 
-    const splitAuth = authorization.split(' ');
-    const { id } = await this._authenticationTokenManager.decodePayload(
-      splitAuth[1],
-    );
-    const addThread = new AddThread({ owner: id, ...useCasePayload });
+    // token diverifikasi tanda tangannya, bukan sekadar di-decode
+    const { id } = await this._authenticationTokenManager.verifyTokenFromHeader(authorization);
+    // owner dari token, bukan dari body, agar tidak bisa menyamar sebagai pengguna lain
+    const addThread = new AddThread({ ...useCasePayload, owner: id });
     return this._threadRepository.addThread(addThread);
   }
 }

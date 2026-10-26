@@ -16,12 +16,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@hapi/hapi": "^20.1.5",
-    "@hapi/jwt": "^2.0.1",
     "bcrypt": "^5.0.1",
     "dotenv": "^10.0.0",
-    "hapi-auth-bearer-token": "^8.0.0",
+    "express": "^4.22.3",
     "instances-container": "^2.0.3",
+    "jsonwebtoken": "^9.0.3",
     "nanoid": "^3.1.23",
     "pg": "^8.6.0"
   },
@@ -32,6 +31,7 @@
     "eslint-plugin-import": "^2.23.4",
     "jest": "^27.0.6",
     "node-pg-migrate": "^5.10.0",
-    "nodemon": "^2.0.9"
+    "nodemon": "^2.0.9",
+    "supertest": "^7.3.1"
   }
 }

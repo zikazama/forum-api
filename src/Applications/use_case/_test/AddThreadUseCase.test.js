@@ -33,7 +33,7 @@ describe('AddThreadUseCase', () => {
     /** mocking needed function */
     mockThreadRepository.addThread = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedThread));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
     /** creating use case instance */
@@ -49,7 +49,7 @@ describe('AddThreadUseCase', () => {
     // Assert
     expect(verifiedThread).toBeUndefined();
     expect(addedThread).toStrictEqual(expectedThread);
-    expect(mockAuthenticationTokenManager.decodePayload).toBeCalledWith(undefined);
+    expect(mockAuthenticationTokenManager.verifyTokenFromHeader).toBeCalledWith('user-123');
     expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
       title: useCasePayload.title,
       body: useCasePayload.body,
@@ -82,7 +82,7 @@ describe('AddThreadUseCase', () => {
     /** mocking needed function */
     mockThreadRepository.addThread = jest.fn()
       .mockImplementation(() => Promise.resolve(expectedThread));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
       .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
 
     /** creating use case instance */
@@ -99,5 +99,44 @@ describe('AddThreadUseCase', () => {
     await expect(getThreadUseCase.execute(useCasePayload, useCaseHeaders))
       .rejects
       .toThrowError('ADD_THREAD.NO_AUTHORIZATION');
+  });
+
+  it('should use owner from token instead of request payload', async () => {
+    // Arrange
+    const useCasePayload = {
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-lain',
+    };
+
+    const useCaseHeaders = {
+      authorization: 'Bearer token',
+    };
+
+    /** creating dependency of use case */
+    const mockThreadRepository = new ThreadRepository();
+    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
+
+    /** mocking needed function */
+    mockThreadRepository.addThread = jest.fn()
+      .mockImplementation(() => Promise.resolve({}));
+    mockAuthenticationTokenManager.verifyTokenFromHeader = jest.fn()
+      .mockImplementation(() => Promise.resolve({ username: 'dicoding', id: 'user-123' }));
+
+    /** creating use case instance */
+    const getThreadUseCase = new AddThreadUseCase({
+      threadRepository: mockThreadRepository,
+      authenticationTokenManager: mockAuthenticationTokenManager,
+    });
+
+    // Action
+    await getThreadUseCase.execute(useCasePayload, useCaseHeaders);
+
+    // Assert
+    expect(mockThreadRepository.addThread).toBeCalledWith(new AddThread({
+      title: 'judul',
+      body: 'isi',
+      owner: 'user-123',
+    }));
   });
 });

@@ -1,25 +1,34 @@
 name: Continuous Deployment
- 
-on: 
+
+on:
   push:
     branches:
       - master
- 
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
- 
+
     steps:
     - name: SSH and deploy app
-      uses: appleboy/ssh-action@master
+      uses: appleboy/ssh-action@v1.2.5
       with:
         host: ${{ secrets.SSH_HOST }}
         username: ${{ secrets.SSH_USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         port: ${{ secrets.SSH_PORT }}
+        script_stop: true
         script: |
           cd ~/auth-api
-          git pull origin master
-          npm install
+          git fetch origin master
+          git reset --hard origin/master
+          npm install --no-audit --no-fund
+          # variabel environment server disimpan di luar repo
+          set -a
+          . ~/forum-api.env
+          set +a
           npm run migrate up
-          pm2 restart auth-api
+          pm2 describe auth-api > /dev/null 2>&1 \
+            && pm2 restart auth-api --update-env \
+            || pm2 start ~/start-forum-api.sh --name auth-api --interpreter bash
+          pm2 save
